@@ -1,13 +1,13 @@
 package com.merpay.remotedata
 
-import org.spekframework.spek2.Spek
-import org.spekframework.spek2.style.specification.describe
 import org.amshove.kluent.should
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldThrow
+import org.spekframework.spek2.Spek
+import org.spekframework.spek2.style.specification.describe
 
 class RemoteDataTest : Spek({
 
@@ -31,13 +31,11 @@ class RemoteDataTest : Spek({
             }
         }
 
-
         it("destructures data correctly") {
             val (value, error) = remoteData
             value shouldEqual 42
             error.shouldBeNull()
         }
-
 
         it("maps to new type correctly") {
             val mappedRm = remoteData.map { it > 0 }
@@ -55,6 +53,11 @@ class RemoteDataTest : Spek({
             val (value, error) = remoteData.flatMap { RemoteData.Success(it * it) }
             value shouldEqual 42 * 42
             error.shouldBeNull()
+        }
+
+        it("getOrElse return value correctly") {
+            val value = remoteData.getOrElse(40)
+            value shouldEqual 42
         }
     }
 
@@ -78,7 +81,6 @@ class RemoteDataTest : Spek({
             }
         }
 
-
         it("destructures error correctly") {
             val (value, error) = remoteData
             value.shouldBeNull()
@@ -92,6 +94,13 @@ class RemoteDataTest : Spek({
             error.message shouldBe "Not Available"
         }
 
+        it("will not flatMapError to new type") {
+            val anotherRm = RemoteData.Success(42)
+            val (value, error) = remoteData.flatMap { anotherRm }
+            value.shouldBeNull()
+            error!!.shouldBeInstanceOf<IllegalStateException>()
+            error.message shouldBe "Not Available"
+        }
 
         it("will flatMapError to new type correctly") {
             val anotherRm = RemoteData.Failure(IllegalArgumentException("Another"))
@@ -105,6 +114,11 @@ class RemoteDataTest : Spek({
             val (value, error) = remoteData.mapBoth({ 42 }, { NullPointerException() })
             value.shouldBeNull()
             error!!.shouldBeInstanceOf<NullPointerException>()
+        }
+
+        it("getOrElse return default value supplied correctly") {
+            val value = remoteData.getOrElse(40)
+            value shouldEqual 40
         }
     }
 
@@ -141,7 +155,6 @@ class RemoteDataTest : Spek({
             value.shouldBeNull()
             error.shouldBeNull()
         }
-
 
         it("maps both to new types correctly") {
             val (value, error) = remoteData.mapBoth({ it }, { NullPointerException() })
