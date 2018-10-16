@@ -1,4 +1,4 @@
-package com.merpay.remotedata
+package com.mercari.remotedata
 
 import org.amshove.kluent.should
 import org.amshove.kluent.shouldBe

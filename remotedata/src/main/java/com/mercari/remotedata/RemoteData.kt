@@ -1,4 +1,4 @@
-package com.merpay.remotedata
+package com.mercari.remotedata
 
 sealed class RemoteData<out V : Any, out E : Exception> {
 
