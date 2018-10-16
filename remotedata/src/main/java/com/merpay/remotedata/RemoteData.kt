@@ -59,7 +59,7 @@ fun <V : Any, E : Exception> RemoteData<V, E>.getOrElse(defaultValue: V) = when 
     else -> defaultValue
 }
 
-inline fun <V : Any, E : Exception, U : Any, EE : Exception> RemoteData<V, E>.mapBoth(
+internal inline fun <V : Any, E : Exception, U : Any, EE : Exception> RemoteData<V, E>.mapBoth(
         transform: (V) -> U,
         transformError: (E) -> EE
 ): RemoteData<U, EE> =

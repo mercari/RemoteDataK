@@ -33,22 +33,29 @@ jacoco {
     applyTo(junitPlatformTest)
 }
 
-junitPlatform {
-    filters {
-        engines {
-            include("spek2")
-        }
-    }
-    enableStandardTestTask = true
-}
+task<JacocoReport>("codeCoverageReport") {
+    group = "reporting"
 
-tasks {
-    "jacocoTestReport"(JacocoReport::class) {
-        reports {
-            html.isEnabled = false
-            xml.isEnabled = true
-        }
+    val junitPlatformTest: JavaExec by tasks
+
+    reports {
+        xml.isEnabled = true
+        xml.destination = file("${project.buildDir}/reports/jacoco/codeCoverageReport/report.xml")
+        html.isEnabled = true
     }
+
+    val tree = fileTree("${project.buildDir}/classes")
+
+    val mainSrc = "${project.projectDir}/src/main/java"
+
+    sourceDirectories = files(mainSrc)
+    classDirectories = files(tree)
+
+    executionData = fileTree(project.buildDir) {
+        include("jacoco/*.exec")
+    }
+
+    dependsOn(junitPlatformTest)
 }
 
 configure<PublishExtension> {
