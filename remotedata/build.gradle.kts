@@ -59,9 +59,9 @@ task<JacocoReport>("codeCoverageReport") {
 }
 
 configure<PublishExtension> {
-    uploadName = "RemoteData"
+    uploadName = "RemoteDataK"
     groupId = "com.mercari.remotedata"
-    artifactId = "RemoteData"
+    artifactId = "remoteData"
     publishVersion = extra.get("publishVersion") as String
     autoPublish = true
     desc = "Abstract Data Type (ADT) to represent data that is fetching from the remote sources"
