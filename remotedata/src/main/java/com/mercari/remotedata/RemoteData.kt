@@ -2,6 +2,10 @@ package com.mercari.remotedata
 
 sealed class RemoteData<out V : Any, out E : Exception> {
 
+    /**
+     * This allows extension functions over the companion object for each RemoteData
+     */
+    @Suppress("RemoveEmptyClassBody")
     companion object {}
 
     open operator fun component1(): V? = null
@@ -32,7 +36,7 @@ sealed class RemoteData<out V : Any, out E : Exception> {
     }
 
     val isNotAsked
-        get() = this === NotAsked
+        get() = this is NotAsked
 
     val isLoading
         get() = this is Loading
