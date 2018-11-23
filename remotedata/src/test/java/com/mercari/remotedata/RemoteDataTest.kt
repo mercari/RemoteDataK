@@ -45,6 +45,7 @@ class RemoteDataTest : Spek({
 
         it("maps both to new types correctly") {
             val (value, error) = remoteData.mapBoth({ it + it }, { NullPointerException() })
+
             value shouldEqual 84
             error.shouldBeNull()
         }
@@ -52,6 +53,14 @@ class RemoteDataTest : Spek({
         it("flatmaps to new type correctly") {
             val (value, error) = remoteData.flatMap { RemoteData.Success(it * it) }
             value shouldEqual 42 * 42
+            error.shouldBeNull()
+        }
+
+        it("will not flatMapError to new type") {
+            val anotherRm = RemoteData.Failure(NullPointerException())
+            val (value, error) = (remoteData as RemoteData<Int, Exception>).flatMapError { anotherRm }
+
+            value shouldEqual 42
             error.shouldBeNull()
         }
 
@@ -69,7 +78,7 @@ class RemoteDataTest : Spek({
             remoteData.error.shouldBeInstanceOf<IllegalStateException>()
 
             val t = { remoteData.get() }
-            t.shouldThrow(IllegalStateException::class)
+            t shouldThrow (IllegalStateException::class)
         }
 
         it("reports failure") {
@@ -94,7 +103,7 @@ class RemoteDataTest : Spek({
             error.message shouldBe "Not Available"
         }
 
-        it("will not flatMapError to new type") {
+        it("will not flatMap to new type") {
             val anotherRm = RemoteData.Success(42)
             val (value, error) = remoteData.flatMap { anotherRm }
             value.shouldBeNull()
@@ -172,6 +181,11 @@ class RemoteDataTest : Spek({
             rmString.get().shouldBeNull()
         }
 
+        it("equal to another") {
+            val anotherRmInt = RemoteData.Loading<Int>()
+            rmInt shouldEqual anotherRmInt
+        }
+
         it("has no value at creation but the type is carried along properly") {
             rmInt.shouldBeInstanceOf<RemoteData.Loading<Int>>()
             rmString.shouldBeInstanceOf<RemoteData.Loading<String>>()
@@ -194,21 +208,32 @@ class RemoteDataTest : Spek({
             rmString.isNotAsked shouldEqual false
         }
 
-
         it("destructures none of them correctly") {
             val (value, error) = rmInt
             value.shouldBeNull()
             error.shouldBeNull()
         }
 
-        it("will not mapError to new type") {
+        it("will not map to new type") {
             val (value, error) = rmInt.map { 500 }
             value.shouldBeNull()
             error.shouldBeNull()
         }
 
-        it("will not flatmapError to new type") {
+        it("will not mapError to new type") {
+            val (value, error) = rmInt.map { 499 }
+            value.shouldBeNull()
+            error.shouldBeNull()
+        }
+
+        it("will not flatmap to new type") {
             val (value, error) = rmString.flatMap { RemoteData.Success("Hello world") }
+            value.shouldBeNull()
+            error.shouldBeNull()
+        }
+
+        it("will not flatmapError to new type") {
+            val (value, error) = rmString.flatMapError { RemoteData.Success("World Hello") }
             value.shouldBeNull()
             error.shouldBeNull()
         }
