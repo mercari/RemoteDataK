@@ -102,10 +102,11 @@ bintray {
     user = findProperty("BINTRAY_USER") as? String
     key = findProperty("BINTRAY_KEY") as? String
     override = System.getenv("CIRCLE_BRANCH") == "master"
+    publish = true
     setPublications(project.name)
     pkg.apply {
         repo = "maven"
-        name = "remotdatak"
+        name = "remotedatak"
         desc = "Abstract Data Type (ADT) to represent data that is fetching from the remote sources"
         userOrg = "mercari-inc"
         websiteUrl = "https://github.com/mercari/RemoteData"
