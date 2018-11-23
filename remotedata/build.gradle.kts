@@ -68,7 +68,7 @@ version = artifactPublishVersion
 // publishing
 val sourceSets = project.the<SourceSetContainer>()
 
-val sourcesJar by tasks.registering(Jar::class) {
+val sourcesJar by tasks.creating(Jar::class) {
     from(sourceSets["main"].allSource)
     classifier = "sources"
 }
@@ -88,7 +88,7 @@ publishing {
     publications {
         register(project.name, MavenPublication::class) {
             from(components["java"])
-            artifact(sourcesJar.get())
+            artifact(sourcesJar)
             artifact(javadocJar)
             groupId = artifactGroupId
             artifactId = project.name
@@ -98,9 +98,10 @@ publishing {
 }
 
 // bintray
-configure<BintrayExtension> {
-    user = findProperty("BINTRAY_USERNAME") as? String
+bintray {
+    user = findProperty("BINTRAY_USER") as? String
     key = findProperty("BINTRAY_KEY") as? String
+    override = System.getenv("CIRCLE_BRANCH") == "master"
     setPublications(project.name)
     pkg.apply {
         repo = "maven"
