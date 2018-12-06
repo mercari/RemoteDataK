@@ -51,12 +51,12 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.map(
         transform: (V) -> U
 ): RemoteData<U, E> =
-        mapBoth({ transform(it) }, { it })
+        mapBoth(transform, { it })
 
 fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.mapError(
         transform: (E) -> EE
 ): RemoteData<V, EE> =
-        mapBoth({ it }, { transform(it) })
+        mapBoth({ it }, transform)
 
 fun <V : Any, E : Exception> RemoteData<V, E>.getOrElse(defaultValue: V) = when (this) {
     is RemoteData.Success -> value
