@@ -15,15 +15,15 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "build../gradlew.kts" }}
+          - v1-dependencies-{{ checksum "build.gradle.kts" }}
           - v1-dependencies-
 
       - run: ./gradlew dependencies
 
       - save_cache:
           paths:
-            - ~/../gradlew
-          key: v1-dependencies-{{ checksum "build../gradlew.kts" }}
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle.kts" }}
 
       - run: ./gradlew codeCoverageReport
 
@@ -44,15 +44,15 @@ jobs:
 
       - restore_cache:
           keys:
-          - v1-dependencies-{{ checksum "build../gradlew.kts" }}
+          - v1-dependencies-{{ checksum "build.gradle.kts" }}
           - v1-dependencies-
 
       - run: ./gradlew dependencies
 
       - save_cache:
           paths:
-            - ~/../gradlew
-          key: v1-dependencies-{{ checksum "build../gradlew.kts" }}
+            - ~/.gradle
+          key: v1-dependencies-{{ checksum "build.gradle.kts" }}
 
       - run: ./gradlew clean build bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY -PdryRun=false -Ppublish=true
 
