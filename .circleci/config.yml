@@ -18,14 +18,14 @@ jobs:
           - v1-dependencies-{{ checksum "build.gradle.kts" }}
           - v1-dependencies-
 
-      - run: gradle dependencies
+      - run: ./gradlew dependencies
 
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle.kts" }}
 
-      - run: gradle codeCoverageReport
+      - run: ./gradlew codeCoverageReport
 
       - run: bash <(curl -s https://codecov.io/bash)
 
@@ -47,14 +47,14 @@ jobs:
           - v1-dependencies-{{ checksum "build.gradle.kts" }}
           - v1-dependencies-
 
-      - run: gradle dependencies
+      - run: ./gradlew dependencies
 
       - save_cache:
           paths:
             - ~/.gradle
           key: v1-dependencies-{{ checksum "build.gradle.kts" }}
 
-      - run: gradle clean build bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY -PdryRun=false -Ppublish=true
+      - run: ./gradlew clean build bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY -PdryRun=false -Ppublish=true
 
 workflows:
   version: 2

@@ -19,3 +19,7 @@ allprojects {
         maven { setUrl("https://dl.bintray.com/spekframework/spek-dev") }
     }
 }
+
+tasks.create<Wrapper>("wrapper") {
+   gradleVersion = "4.10.2"
+}
