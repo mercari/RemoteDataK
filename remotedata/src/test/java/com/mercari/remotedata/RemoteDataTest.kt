@@ -5,6 +5,7 @@ import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
+import org.amshove.kluent.shouldNotEqual
 import org.amshove.kluent.shouldThrow
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -20,6 +21,16 @@ class RemoteDataTest : Spek({
                 value shouldEqual 42
                 get() shouldEqual 42
             }
+        }
+
+        it("equality") {
+            val sameSuccess = RemoteData.Success(42)
+            remoteData.hashCode() shouldEqual sameSuccess.hashCode()
+            remoteData shouldEqual sameSuccess
+
+            val anotherSuccess = RemoteData.Success(43)
+            remoteData.hashCode() shouldNotEqual anotherSuccess.hashCode()
+            remoteData shouldNotEqual anotherSuccess
         }
 
         it("reports Success") {
@@ -81,6 +92,20 @@ class RemoteDataTest : Spek({
             t shouldThrow (IllegalStateException::class)
         }
 
+        it("equality") {
+            val sameFailure = RemoteData.Failure(data) // Exception has to be the same reference!!
+            remoteData.hashCode() shouldEqual sameFailure.hashCode()
+            remoteData shouldEqual sameFailure
+
+            val sameFailureDifferentException = RemoteData.Failure(IllegalStateException("Not Available"))
+            remoteData.hashCode() shouldNotEqual sameFailureDifferentException.hashCode()
+            remoteData shouldNotEqual sameFailureDifferentException
+
+            val anotherFailure = RemoteData.Failure(NullPointerException())
+            remoteData.hashCode() shouldNotEqual anotherFailure.hashCode()
+            remoteData shouldNotEqual anotherFailure
+        }
+
         it("reports failure") {
             remoteData.run {
                 isSuccess shouldEqual false
@@ -138,6 +163,12 @@ class RemoteDataTest : Spek({
             remoteData.get().shouldBeNull()
         }
 
+        it("equal to another") {
+            val anotherNotAsked = RemoteData.NotAsked
+            remoteData.hashCode() shouldEqual anotherNotAsked.hashCode()
+            remoteData shouldEqual anotherNotAsked
+        }
+
         it("reports notAsked") {
             remoteData.run {
                 isSuccess shouldEqual false
@@ -181,9 +212,10 @@ class RemoteDataTest : Spek({
             rmString.get().shouldBeNull()
         }
 
-        it("equal to another") {
-            val anotherRmInt = RemoteData.Loading<Int>()
-            rmInt shouldEqual anotherRmInt
+        it("equality") {
+            val sameLoading = RemoteData.Loading<Int>()
+            rmInt.hashCode() shouldEqual sameLoading.hashCode()
+            rmInt shouldEqual sameLoading
         }
 
         it("has no value at creation but the type is carried along properly") {

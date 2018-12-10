@@ -16,7 +16,11 @@ sealed class RemoteData<out V : Any, out E : Exception> {
     object NotAsked : RemoteData<Nothing, Nothing>()
 
     class Loading<V : Any> : RemoteData<V, Nothing>() {
-        override fun equals(other: Any?): Boolean = other is Loading<*>
+        override fun equals(other: Any?): Boolean =
+                if (other === this) true
+                else {
+                    other is Loading<*>
+                }
 
         override fun hashCode(): Int = javaClass.hashCode()
     }
@@ -26,6 +30,14 @@ sealed class RemoteData<out V : Any, out E : Exception> {
         override fun component1(): V = value
 
         override fun get(): V = value
+
+        override fun equals(other: Any?): Boolean =
+                if (other === this) true
+                else {
+                    other is Success<*> && other.value == value
+                }
+
+        override fun hashCode(): Int = javaClass.hashCode() * 31 + value.hashCode()
     }
 
     class Failure<out E : Exception>(val error: E) : RemoteData<Nothing, E>() {
@@ -33,6 +45,14 @@ sealed class RemoteData<out V : Any, out E : Exception> {
         override fun component2(): E = error
 
         override fun get() = throw error
+
+        override fun equals(other: Any?): Boolean =
+                if (other === this) true
+                else {
+                    other is Failure<*> && other.error == error
+                }
+
+        override fun hashCode(): Int = javaClass.hashCode() * 31 + error.hashCode()
     }
 
     val isNotAsked
