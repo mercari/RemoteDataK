@@ -50,7 +50,7 @@ class RemoteDataTest : Spek({
             error.shouldBeNull()
         }
 
-        it("flatmaps to new type correctly") {
+        it("flatMaps to new type correctly") {
             val (value, error) = remoteData.flatMap { RemoteData.Success(it * it) }
             value shouldEqual 42 * 42
             error.shouldBeNull()
@@ -159,7 +159,7 @@ class RemoteDataTest : Spek({
             error.shouldBeNull()
         }
 
-        it("will not flatmap to new type") {
+        it("will not flatMap to new type") {
             val (value, error) = remoteData.flatMap { RemoteData.Success("Hello world") }
             value.shouldBeNull()
             error.shouldBeNull()
@@ -221,18 +221,18 @@ class RemoteDataTest : Spek({
         }
 
         it("will not mapError to new type") {
-            val (value, error) = rmInt.map { 499 }
+            val (value, error) = rmInt.mapError { NullPointerException() }
             value.shouldBeNull()
             error.shouldBeNull()
         }
 
-        it("will not flatmap to new type") {
+        it("will not flatMap to new type") {
             val (value, error) = rmString.flatMap { RemoteData.Success("Hello world") }
             value.shouldBeNull()
             error.shouldBeNull()
         }
 
-        it("will not flatmapError to new type") {
+        it("will not flatMapError to new type") {
             val (value, error) = rmString.flatMapError { RemoteData.Success("World Hello") }
             value.shouldBeNull()
             error.shouldBeNull()
