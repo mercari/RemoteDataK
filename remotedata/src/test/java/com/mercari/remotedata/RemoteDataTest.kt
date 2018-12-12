@@ -206,6 +206,8 @@ class RemoteDataTest : Spek({
     describe("loading remote data") {
         val rmInt = RemoteData.Loading<Int>()
         val rmString = RemoteData.Loading<String>()
+        val rmBytes = RemoteData.Loading<ByteArray>()
+        val rmBytesWithProgress = RemoteData.Loading<ByteArray>(0)
 
         it("gets null") {
             rmInt.get().shouldBeNull()
@@ -216,6 +218,18 @@ class RemoteDataTest : Spek({
             val sameLoading = RemoteData.Loading<Int>()
             rmInt.hashCode() shouldEqual sameLoading.hashCode()
             rmInt shouldEqual sameLoading
+
+            val sameRmBytesWithProgress = RemoteData.Loading<ByteArray>(0)
+            val otherRmBytesWithProgress = RemoteData.Loading<ByteArray>(10)
+
+            rmBytes.hashCode() shouldNotEqual rmBytesWithProgress.hashCode()
+            rmBytes shouldNotEqual rmBytesWithProgress
+
+            rmBytesWithProgress.hashCode() shouldEqual sameRmBytesWithProgress.hashCode()
+            rmBytesWithProgress shouldEqual sameRmBytesWithProgress
+
+            rmBytes.hashCode() shouldNotEqual otherRmBytesWithProgress.hashCode()
+            rmBytes shouldNotEqual otherRmBytesWithProgress
         }
 
         it("has no value at creation but the type is carried along properly") {
@@ -234,10 +248,51 @@ class RemoteDataTest : Spek({
         }
 
         it("reports loading") {
-            rmInt.isSuccess shouldEqual false
-            rmInt.isFailure shouldEqual false
-            rmString.isLoading shouldEqual true
-            rmString.isNotAsked shouldEqual false
+            rmInt.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+            rmString.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+            rmBytes.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+            rmBytesWithProgress.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+        }
+
+        it("reports indeterminate when no percentage is set") {
+            rmBytes.isIndeterminate shouldEqual true
+            rmBytesWithProgress.isIndeterminate shouldEqual false
+        }
+
+        it("can set the percentage properly after init") {
+
+            rmBytes.run {
+                percentage shouldEqual null
+
+                percentage = 10
+
+                percentage shouldEqual 10
+            }
+        }
+
+        it("input validation") {
+            { rmBytes.percentage = -1 } shouldThrow IllegalArgumentException::class
+            { rmBytes.percentage = 101 } shouldThrow IllegalArgumentException::class
         }
 
         it("destructures none of them correctly") {
