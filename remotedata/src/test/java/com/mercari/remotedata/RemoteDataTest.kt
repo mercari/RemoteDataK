@@ -1,11 +1,14 @@
 package com.mercari.remotedata
 
+import com.mercari.remotedata.RemoteData.Loading.Progress.Determinate
+import com.mercari.remotedata.RemoteData.Loading.Progress.Indeterminate
 import org.amshove.kluent.should
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -206,30 +209,35 @@ class RemoteDataTest : Spek({
     describe("loading remote data") {
         val rmInt = RemoteData.Loading<Int>()
         val rmString = RemoteData.Loading<String>()
-        val rmBytes = RemoteData.Loading<ByteArray>()
-        val rmBytesWithProgress = RemoteData.Loading<ByteArray>(0)
+
+        val determinateRmBytes = RemoteData.Loading<ByteArray>(0)
+        val indeterminateRmBytes = RemoteData.Loading<ByteArray>(Indeterminate)
 
         it("gets null") {
             rmInt.get().shouldBeNull()
             rmString.get().shouldBeNull()
         }
 
-        it("equality") {
+        it("tests equality") {
             val sameLoading = RemoteData.Loading<Int>()
             rmInt.hashCode() shouldEqual sameLoading.hashCode()
             rmInt shouldEqual sameLoading
 
-            val sameRmBytesWithProgress = RemoteData.Loading<ByteArray>(0)
-            val otherRmBytesWithProgress = RemoteData.Loading<ByteArray>(10)
+            val sameRmBytesDeterminate = RemoteData.Loading<ByteArray>(0)
+            val otherDeterminateRmBytes = RemoteData.Loading<ByteArray>(10)
+            val otherIndeterminateRmBytes = RemoteData.Loading<ByteArray>()
 
-            rmBytes.hashCode() shouldNotEqual rmBytesWithProgress.hashCode()
-            rmBytes shouldNotEqual rmBytesWithProgress
+            determinateRmBytes.hashCode() shouldNotEqual indeterminateRmBytes.hashCode()
+            determinateRmBytes shouldNotEqual indeterminateRmBytes
 
-            rmBytesWithProgress.hashCode() shouldEqual sameRmBytesWithProgress.hashCode()
-            rmBytesWithProgress shouldEqual sameRmBytesWithProgress
+            determinateRmBytes.hashCode() shouldEqual sameRmBytesDeterminate.hashCode()
+            determinateRmBytes shouldEqual sameRmBytesDeterminate
 
-            rmBytes.hashCode() shouldNotEqual otherRmBytesWithProgress.hashCode()
-            rmBytes shouldNotEqual otherRmBytesWithProgress
+            determinateRmBytes.hashCode() shouldNotEqual otherDeterminateRmBytes.hashCode()
+            determinateRmBytes shouldNotEqual otherDeterminateRmBytes
+
+            indeterminateRmBytes.hashCode() shouldEqual otherIndeterminateRmBytes.hashCode()
+            indeterminateRmBytes shouldEqual otherIndeterminateRmBytes
         }
 
         it("has no value at creation but the type is carried along properly") {
@@ -260,13 +268,13 @@ class RemoteDataTest : Spek({
                 isNotAsked shouldEqual false
                 isLoading shouldEqual true
             }
-            rmBytes.run {
+            determinateRmBytes.run {
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
                 isNotAsked shouldEqual false
                 isLoading shouldEqual true
             }
-            rmBytesWithProgress.run {
+            indeterminateRmBytes.run {
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
                 isNotAsked shouldEqual false
@@ -274,25 +282,27 @@ class RemoteDataTest : Spek({
             }
         }
 
-        it("reports indeterminate when no percentage is set") {
-            rmBytes.isIndeterminate shouldEqual true
-            rmBytesWithProgress.isIndeterminate shouldEqual false
+        it("reports proper progress type") {
+            determinateRmBytes.progress shouldBeInstanceOf Determinate::class
+            indeterminateRmBytes.progress shouldBeInstanceOf Indeterminate::class
         }
 
-        it("can set the percentage properly after init") {
+        it("validates progress properly") {
+            {
+                (determinateRmBytes.progress as Determinate).percentage = -1
+            } shouldThrow IllegalArgumentException::class
 
-            rmBytes.run {
-                percentage shouldEqual null
+            {
+                (determinateRmBytes.progress as Determinate).percentage = 101
+            } shouldThrow IllegalArgumentException::class
 
-                percentage = 10
-
-                percentage shouldEqual 10
-            }
-        }
-
-        it("input validation") {
-            { rmBytes.percentage = -1 } shouldThrow IllegalArgumentException::class
-            { rmBytes.percentage = 101 } shouldThrow IllegalArgumentException::class
+            {
+                (determinateRmBytes.progress as Determinate).run {
+                    percentage = 0
+                    percentage = 50
+                    percentage = 100
+                }
+            } shouldNotThrow IllegalArgumentException::class
         }
 
         it("destructures none of them correctly") {

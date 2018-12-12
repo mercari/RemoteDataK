@@ -15,26 +15,40 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     object NotAsked : RemoteData<Nothing, Nothing>()
 
-    class Loading<V : Any>(percentage: Int? = null) : RemoteData<V, Nothing>() {
+    class Loading<V : Any>(val progress: Progress = Progress.Indeterminate) : RemoteData<V, Nothing>() {
 
-        var percentage: Int? = percentage
-            set(value) {
-                if (value != null && (value < 0 || value > 100)) {
-                    throw IllegalArgumentException("percentage has to be between 0 and 100")
+        sealed class Progress {
+            class Determinate(percentage: Int) : Progress() {
+                var percentage : Int = percentage
+                set(value) {
+                    if (value in 0..100) {
+                        if (value <= field) {
+                            field = value
+                        } else throw IllegalArgumentException("percentage should not decrease")
+                    } else throw IllegalArgumentException("percentage should be between 0 and 100")
                 }
-                field = value
+
+                override fun equals(other: Any?): Boolean =
+                        if (other === this) true
+                        else {
+                            other is Determinate && other.percentage == percentage
+                        }
+
+                override fun hashCode(): Int = javaClass.hashCode() * 31 + percentage.hashCode()
             }
 
-        val isIndeterminate: Boolean
-            get() = percentage == null
+            object Indeterminate : Progress()
+        }
+
+        constructor(percentage: Int) : this(Progress.Determinate(percentage))
 
         override fun equals(other: Any?): Boolean =
                 if (other === this) true
                 else {
-                    other is Loading<*> && other.percentage == percentage
+                    other is Loading<*> && other.progress == progress
                 }
 
-        override fun hashCode(): Int = javaClass.hashCode() * 31 + (percentage?.plus(1)).hashCode()
+        override fun hashCode(): Int = javaClass.hashCode() * 31 + progress.hashCode()
     }
 
     class Success<out V : Any>(val value: V) : RemoteData<V, Nothing>() {
@@ -101,7 +115,7 @@ internal inline fun <V : Any, E : Exception, U : Any, EE : Exception> RemoteData
 ): RemoteData<U, EE> =
         when (this) {
             RemoteData.NotAsked -> RemoteData.NotAsked
-            is RemoteData.Loading -> RemoteData.Loading(percentage)
+            is RemoteData.Loading -> RemoteData.Loading(progress)
             is RemoteData.Success -> RemoteData.Success(transform(value))
             is RemoteData.Failure -> RemoteData.Failure(transformError(error))
         }
@@ -111,7 +125,7 @@ fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.flatMap(
 ): RemoteData<U, E> =
         when (this) {
             RemoteData.NotAsked -> RemoteData.NotAsked
-            is RemoteData.Loading -> RemoteData.Loading(percentage)
+            is RemoteData.Loading -> RemoteData.Loading(progress)
             is RemoteData.Success -> transform(value)
             is RemoteData.Failure -> this
         }
@@ -121,7 +135,7 @@ fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.flatMapError(
 ): RemoteData<V, EE> =
         when (this) {
             RemoteData.NotAsked -> RemoteData.NotAsked
-            is RemoteData.Loading -> RemoteData.Loading(percentage)
+            is RemoteData.Loading -> RemoteData.Loading(progress)
             is RemoteData.Success -> this
             is RemoteData.Failure -> transform(error)
         }
