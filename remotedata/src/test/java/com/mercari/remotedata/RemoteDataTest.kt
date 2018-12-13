@@ -298,6 +298,13 @@ class RemoteDataTest : Spek({
 
             {
                 (determinateRmBytes.progress as Determinate).run {
+                    percentage = 10
+                    percentage = 9
+                }
+            } shouldThrow IllegalArgumentException::class
+
+            {
+                (determinateRmBytes.progress as Determinate).run {
                     percentage = 0
                     percentage = 50
                     percentage = 100
