@@ -15,40 +15,25 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     object NotAsked : RemoteData<Nothing, Nothing>()
 
-    class Loading<V : Any>(val progress: Progress = Progress.Indeterminate) : RemoteData<V, Nothing>() {
+    class Loading<V : Any>(progress: Int? = null, val totalUnits: Int = 100) : RemoteData<V, Nothing>() {
 
-        sealed class Progress {
-            class Determinate(percentage: Int) : Progress() {
-                var percentage : Int = percentage
-                set(value) {
-                    if (value in 0..100) {
-                        if (value <= field) {
-                            field = value
-                        } else throw IllegalArgumentException("percentage should not decrease")
-                    } else throw IllegalArgumentException("percentage should be between 0 and 100")
-                }
-
-                override fun equals(other: Any?): Boolean =
-                        if (other === this) true
-                        else {
-                            other is Determinate && other.percentage == percentage
-                        }
-
-                override fun hashCode(): Int = javaClass.hashCode() * 31 + percentage.hashCode()
+        var progress: Int? = progress?.coerceTo(totalUnits)
+            set(value) {
+                field = value?.coerceTo(totalUnits)
             }
 
-            object Indeterminate : Progress()
-        }
+        private fun Int?.coerceTo(totalUnits: Int): Int = this?.coerceIn(0..totalUnits) ?: 0
 
-        constructor(percentage: Int) : this(Progress.Determinate(percentage))
+        val isIndeterminateProgress: Boolean = progress == null
 
         override fun equals(other: Any?): Boolean =
                 if (other === this) true
                 else {
-                    other is Loading<*> && other.progress == progress
+                    other is Loading<*> && other.progress == progress && other.totalUnits == totalUnits
                 }
 
-        override fun hashCode(): Int = javaClass.hashCode() * 31 + progress.hashCode()
+        override fun hashCode(): Int =
+                (javaClass.hashCode() * 31 + progress?.plus(1).hashCode()) * 31 + totalUnits.hashCode()
     }
 
     class Success<out V : Any>(val value: V) : RemoteData<V, Nothing>() {

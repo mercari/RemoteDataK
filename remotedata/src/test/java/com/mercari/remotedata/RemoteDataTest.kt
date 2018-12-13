@@ -1,7 +1,5 @@
 package com.mercari.remotedata
 
-import com.mercari.remotedata.RemoteData.Loading.Progress.Determinate
-import com.mercari.remotedata.RemoteData.Loading.Progress.Indeterminate
 import org.amshove.kluent.should
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
@@ -211,7 +209,10 @@ class RemoteDataTest : Spek({
         val rmString = RemoteData.Loading<String>()
 
         val determinateRmBytes = RemoteData.Loading<ByteArray>(0)
-        val indeterminateRmBytes = RemoteData.Loading<ByteArray>(Indeterminate)
+        val indeterminateRmBytes = RemoteData.Loading<ByteArray>()
+
+        val totalUnits = 1024
+        val determinateRmBytesWithTotal = RemoteData.Loading<ByteArray>(0, totalUnits)
 
         it("gets null") {
             rmInt.get().shouldBeNull()
@@ -235,6 +236,9 @@ class RemoteDataTest : Spek({
 
             determinateRmBytes.hashCode() shouldNotEqual otherDeterminateRmBytes.hashCode()
             determinateRmBytes shouldNotEqual otherDeterminateRmBytes
+
+            determinateRmBytes.hashCode() shouldNotEqual determinateRmBytesWithTotal
+            determinateRmBytes shouldNotEqual determinateRmBytesWithTotal
 
             indeterminateRmBytes.hashCode() shouldEqual otherIndeterminateRmBytes.hashCode()
             indeterminateRmBytes shouldEqual otherIndeterminateRmBytes
@@ -283,33 +287,43 @@ class RemoteDataTest : Spek({
         }
 
         it("reports proper progress type") {
-            determinateRmBytes.progress shouldBeInstanceOf Determinate::class
-            indeterminateRmBytes.progress shouldBeInstanceOf Indeterminate::class
+            determinateRmBytes.isIndeterminateProgress shouldEqual false
+            indeterminateRmBytes.isIndeterminateProgress shouldEqual true
         }
 
-        it("validates progress properly") {
-            {
-                (determinateRmBytes.progress as Determinate).percentage = -1
-            } shouldThrow IllegalArgumentException::class
+        it("coerces progress properly") {
 
-            {
-                (determinateRmBytes.progress as Determinate).percentage = 101
-            } shouldThrow IllegalArgumentException::class
+            RemoteData.Loading<ByteArray>(-1).progress shouldEqual 0
+            RemoteData.Loading<ByteArray>(101).progress shouldEqual 100
+            RemoteData.Loading<ByteArray>(1).progress shouldEqual 1
+            RemoteData.Loading<ByteArray>(99).progress shouldEqual 99
 
-            {
-                (determinateRmBytes.progress as Determinate).run {
-                    percentage = 10
-                    percentage = 9
-                }
-            } shouldThrow IllegalArgumentException::class
+            indeterminateRmBytes.progress.shouldBeNull()
 
-            {
-                (determinateRmBytes.progress as Determinate).run {
-                    percentage = 0
-                    percentage = 50
-                    percentage = 100
-                }
-            } shouldNotThrow IllegalArgumentException::class
+            determinateRmBytes.run {
+                progress = -1
+                progress shouldEqual 0
+
+                progress = 101
+                progress shouldEqual 100
+
+                progress = 1
+                progress shouldEqual 1
+
+                progress = 99
+                progress shouldEqual 99
+            }
+
+            determinateRmBytesWithTotal.run {
+                progress = -1
+                progress shouldEqual 0
+
+                progress = totalUnits + 1
+                progress shouldEqual totalUnits
+
+                progress = totalUnits - 1
+                progress shouldEqual totalUnits - 1
+            }
         }
 
         it("destructures none of them correctly") {
