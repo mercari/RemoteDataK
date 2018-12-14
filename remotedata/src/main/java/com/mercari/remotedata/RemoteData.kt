@@ -120,7 +120,7 @@ fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.flatMapError(
 ): RemoteData<V, EE> =
         when (this) {
             RemoteData.NotAsked -> RemoteData.NotAsked
-            is RemoteData.Loading -> RemoteData.Loading(progress)
+            is RemoteData.Loading -> this
             is RemoteData.Success -> this
             is RemoteData.Failure -> transform(error)
         }
