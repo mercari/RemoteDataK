@@ -5,3 +5,19 @@
 [![codecov](https://codecov.io/gh/mercari/RemoteData/branch/master/graph/badge.svg)](https://codecov.io/gh/mercari/RemoteData)
 
 Abstract data type (ADTs) to represent data that is fetching from the remote sources
+
+## Installation
+
+```
+dependencies {
+  repositories {
+    jcenter()
+  }
+}
+
+implementation("com.mercari.remotedata:remotedata:<latest-version>")
+```
+
+## Documentation
+
+TBD
