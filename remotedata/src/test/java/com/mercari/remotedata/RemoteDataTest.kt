@@ -6,6 +6,7 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -207,15 +208,40 @@ class RemoteDataTest : Spek({
         val rmInt = RemoteData.Loading<Int>()
         val rmString = RemoteData.Loading<String>()
 
+        val determinateRmBytes = RemoteData.Loading<ByteArray>(0)
+        val indeterminateRmBytes = RemoteData.Loading<ByteArray>()
+
+        val totalUnits = 1024
+        val determinateRmBytesWithTotal = RemoteData.Loading<ByteArray>(0, totalUnits)
+
         it("gets null") {
             rmInt.get().shouldBeNull()
             rmString.get().shouldBeNull()
         }
 
-        it("equality") {
+        it("tests equality") {
             val sameLoading = RemoteData.Loading<Int>()
             rmInt.hashCode() shouldEqual sameLoading.hashCode()
             rmInt shouldEqual sameLoading
+
+            val sameRmBytesDeterminate = RemoteData.Loading<ByteArray>(0)
+            val otherDeterminateRmBytes = RemoteData.Loading<ByteArray>(10)
+            val otherIndeterminateRmBytes = RemoteData.Loading<ByteArray>()
+
+            determinateRmBytes.hashCode() shouldNotEqual indeterminateRmBytes.hashCode()
+            determinateRmBytes shouldNotEqual indeterminateRmBytes
+
+            determinateRmBytes.hashCode() shouldEqual sameRmBytesDeterminate.hashCode()
+            determinateRmBytes shouldEqual sameRmBytesDeterminate
+
+            determinateRmBytes.hashCode() shouldNotEqual otherDeterminateRmBytes.hashCode()
+            determinateRmBytes shouldNotEqual otherDeterminateRmBytes
+
+            determinateRmBytes.hashCode() shouldNotEqual determinateRmBytesWithTotal
+            determinateRmBytes shouldNotEqual determinateRmBytesWithTotal
+
+            indeterminateRmBytes.hashCode() shouldEqual otherIndeterminateRmBytes.hashCode()
+            indeterminateRmBytes shouldEqual otherIndeterminateRmBytes
         }
 
         it("has no value at creation but the type is carried along properly") {
@@ -234,10 +260,70 @@ class RemoteDataTest : Spek({
         }
 
         it("reports loading") {
-            rmInt.isSuccess shouldEqual false
-            rmInt.isFailure shouldEqual false
-            rmString.isLoading shouldEqual true
-            rmString.isNotAsked shouldEqual false
+            rmInt.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+            rmString.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+            determinateRmBytes.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+            indeterminateRmBytes.run {
+                isSuccess shouldEqual false
+                isFailure shouldEqual false
+                isNotAsked shouldEqual false
+                isLoading shouldEqual true
+            }
+        }
+
+        it("reports proper progress type") {
+            determinateRmBytes.isIndeterminateProgress shouldEqual false
+            indeterminateRmBytes.isIndeterminateProgress shouldEqual true
+        }
+
+        it("coerces progress properly") {
+
+            RemoteData.Loading<ByteArray>(-1).progress shouldEqual 0
+            RemoteData.Loading<ByteArray>(101).progress shouldEqual 100
+            RemoteData.Loading<ByteArray>(1).progress shouldEqual 1
+            RemoteData.Loading<ByteArray>(99).progress shouldEqual 99
+
+            indeterminateRmBytes.progress.shouldBeNull()
+
+            determinateRmBytes.run {
+                progress = -1
+                progress shouldEqual 0
+
+                progress = 101
+                progress shouldEqual 100
+
+                progress = 1
+                progress shouldEqual 1
+
+                progress = 99
+                progress shouldEqual 99
+            }
+
+            determinateRmBytesWithTotal.run {
+                progress = -1
+                progress shouldEqual 0
+
+                progress = totalUnits + 1
+                progress shouldEqual totalUnits
+
+                progress = totalUnits - 1
+                progress shouldEqual totalUnits - 1
+            }
         }
 
         it("destructures none of them correctly") {

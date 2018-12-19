@@ -15,14 +15,25 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     object NotAsked : RemoteData<Nothing, Nothing>()
 
-    class Loading<V : Any> : RemoteData<V, Nothing>() {
+    class Loading<V : Any>(progress: Int? = null, val totalUnits: Int = 100) : RemoteData<V, Nothing>() {
+
+        var progress: Int? = progress?.coerceTo(totalUnits)
+            set(value) {
+                field = value?.coerceTo(totalUnits)
+            }
+
+        private fun Int?.coerceTo(totalUnits: Int): Int = this?.coerceIn(0..totalUnits) ?: 0
+
+        val isIndeterminateProgress: Boolean = progress == null
+
         override fun equals(other: Any?): Boolean =
                 if (other === this) true
                 else {
-                    other is Loading<*>
+                    other is Loading<*> && other.progress == progress && other.totalUnits == totalUnits
                 }
 
-        override fun hashCode(): Int = javaClass.hashCode()
+        override fun hashCode(): Int =
+                (javaClass.hashCode() * 31 + progress?.plus(1).hashCode()) * 31 + totalUnits.hashCode()
     }
 
     class Success<out V : Any>(val value: V) : RemoteData<V, Nothing>() {
@@ -89,7 +100,7 @@ internal inline fun <V : Any, E : Exception, U : Any, EE : Exception> RemoteData
 ): RemoteData<U, EE> =
         when (this) {
             RemoteData.NotAsked -> RemoteData.NotAsked
-            is RemoteData.Loading -> RemoteData.Loading()
+            is RemoteData.Loading -> RemoteData.Loading(progress)
             is RemoteData.Success -> RemoteData.Success(transform(value))
             is RemoteData.Failure -> RemoteData.Failure(transformError(error))
         }
@@ -99,7 +110,7 @@ fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.flatMap(
 ): RemoteData<U, E> =
         when (this) {
             RemoteData.NotAsked -> RemoteData.NotAsked
-            is RemoteData.Loading -> RemoteData.Loading()
+            is RemoteData.Loading -> RemoteData.Loading(progress)
             is RemoteData.Success -> transform(value)
             is RemoteData.Failure -> this
         }
@@ -109,7 +120,7 @@ fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.flatMapError(
 ): RemoteData<V, EE> =
         when (this) {
             RemoteData.NotAsked -> RemoteData.NotAsked
-            is RemoteData.Loading -> RemoteData.Loading()
+            is RemoteData.Loading -> this
             is RemoteData.Success -> this
             is RemoteData.Failure -> transform(error)
         }
