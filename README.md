@@ -5,3 +5,19 @@
 [![codecov](https://codecov.io/gh/mercari/RemoteData/branch/master/graph/badge.svg)](https://codecov.io/gh/mercari/RemoteData)
 
 Abstract Data Type (ADT) to represent the state of data that is loading from remote sources
+
+## Setup
+
+```
+dependencies {
+  repositories {
+    jcenter()
+  }
+}
+
+implementation("com.mercari.remotedata:remotedata:<latest-version>")
+```
+
+## Documentation
+
+TBD
