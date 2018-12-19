@@ -113,3 +113,9 @@ fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.flatMapError(
             is RemoteData.Success -> this
             is RemoteData.Failure -> transform(error)
         }
+
+fun <U : Any, V : Any, E : Exception> RemoteData<U, E>.fanout(anotherRemoteData: RemoteData<V, E>): RemoteData<Pair<U, V>, E> =
+        fanout(anotherRemoteData, ::Pair)
+
+fun <U : Any, V : Any, T : Any, E : Exception> RemoteData<U, E>.fanout(anotherRemoteData: RemoteData<V, E>, transform: (U, V) -> T) =
+        flatMap { outer -> anotherRemoteData.map { inner -> transform(outer, inner) } }
