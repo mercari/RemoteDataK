@@ -76,9 +76,30 @@ class RemoteDataTest : Spek({
             error.shouldBeNull()
         }
 
-        it("getOrElse return value correctly") {
+        it("getOrElse returns value correctly") {
             val value = remoteData.getOrElse(40)
             value shouldEqual 42
+        }
+
+        it("fanout returns a pair of values") {
+            val anotherRm = RemoteData.Success(28)
+
+            val (value, error) = remoteData.fanout(anotherRm)
+
+            value!!.first shouldEqual 42
+            value.second shouldEqual 28
+            error.shouldBeNull()
+        }
+
+        data class Foo(val value1: Int, val value2: String)
+
+        it("fanout multiple rm with a custom transform block") {
+            val anotherRm = RemoteData.Success(28)
+
+            val fanout = remoteData.fanout(anotherRm) { one, two -> Foo(one, two.toString()) }
+
+            fanout.get()!!.value1 shouldEqual 42
+            fanout.get()!!.value2 shouldEqual "28"
         }
     }
 
@@ -155,6 +176,16 @@ class RemoteDataTest : Spek({
             val value = remoteData.getOrElse(40)
             value shouldEqual 40
         }
+
+        it("fanout does not return a pair of values") {
+            val anotherRm = RemoteData.Success(28)
+
+            val (value, error) = remoteData.fanout(anotherRm)
+
+            value.shouldBeNull()
+            error!!.shouldBeInstanceOf<IllegalStateException>()
+            error.message shouldEqual "Not Available"
+        }
     }
 
     describe("notAsked remote data") {
@@ -201,6 +232,15 @@ class RemoteDataTest : Spek({
             val (value, error) = remoteData.mapBoth({ it }, { NullPointerException() })
             value.shouldBeNull()
             error.shouldBeNull()
+        }
+
+        it("fanout does not return a pair of values") {
+            val anotherRm = RemoteData.Success(28)
+
+            val fanout = remoteData.fanout(anotherRm)
+
+            fanout shouldBe RemoteData.NotAsked
+            fanout.get().shouldBeNull()
         }
     }
 
@@ -358,6 +398,19 @@ class RemoteDataTest : Spek({
 
         it("maps both to new types correctly") {
             val (value, error) = rmString.mapBoth({ it.count() }, { NullPointerException() })
+            value.shouldBeNull()
+            error.shouldBeNull()
+        }
+
+        it("fanout does not return a pair of values") {
+            val anotherRm = RemoteData.Success(28)
+
+            val fanout = rmInt.fanout(anotherRm)
+
+            fanout.shouldBeInstanceOf<RemoteData.Loading<*>>()
+
+            val (value, error) = fanout
+
             value.shouldBeNull()
             error.shouldBeNull()
         }
