@@ -75,12 +75,12 @@ class RemoteDataTest : Spek({
             error.shouldBeNull()
         }
 
-        it("getOrElse return value correctly") {
+        it("getOrElse returns value correctly") {
             val value = remoteData.getOrElse(40)
             value shouldEqual 42
         }
 
-        it("fanout return a pair of values") {
+        it("fanout returns a pair of values") {
             val anotherRm = RemoteData.Success(28)
 
             val (value, error) = remoteData.fanout(anotherRm)
@@ -92,7 +92,7 @@ class RemoteDataTest : Spek({
 
         data class Foo(val value1: Int, val value2: String)
 
-        it("fanout with a custom transform block") {
+        it("fanout multiple rm with a custom transform block") {
             val anotherRm = RemoteData.Success(28)
 
             val fanout = remoteData.fanout(anotherRm) { one, two -> Foo(one, two.toString()) }
