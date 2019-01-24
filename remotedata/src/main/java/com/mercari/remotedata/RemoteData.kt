@@ -15,7 +15,10 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     object NotAsked : RemoteData<Nothing, Nothing>()
 
-    class Loading<V : Any>(progress: Int? = null, val totalUnits: Int = 100) : RemoteData<V, Nothing>() {
+    class Loading<V : Any> @JvmOverloads constructor(
+            progress: Int? = null,
+            val totalUnits: Int = 100
+    ) : RemoteData<V, Nothing>() {
 
         var progress: Int? = progress?.coerceTo(totalUnits)
             set(value) {
