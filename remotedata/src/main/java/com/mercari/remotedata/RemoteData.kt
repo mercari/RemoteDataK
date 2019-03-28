@@ -13,12 +13,12 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     open fun get(): V? = null
 
-    object NotAsked : RemoteData<Nothing, Nothing>()
+    object NotAsked : RemoteData<Nothing, Nothing>(), Incomplete
 
     class Loading<V : Any> @JvmOverloads constructor(
             progress: Int? = null,
             val totalUnits: Int = 100
-    ) : RemoteData<V, Nothing>() {
+    ) : RemoteData<V, Nothing>(), Incomplete {
 
         var progress: Int? = progress?.coerceTo(totalUnits)
             set(value) {
@@ -39,7 +39,7 @@ sealed class RemoteData<out V : Any, out E : Exception> {
                 (javaClass.hashCode() * 31 + progress?.plus(1).hashCode()) * 31 + totalUnits.hashCode()
     }
 
-    class Success<out V : Any>(val value: V) : RemoteData<V, Nothing>() {
+    class Success<out V : Any>(val value: V) : RemoteData<V, Nothing>(), Complete {
 
         override fun component1(): V = value
 
@@ -54,7 +54,7 @@ sealed class RemoteData<out V : Any, out E : Exception> {
         override fun hashCode(): Int = javaClass.hashCode() * 31 + value.hashCode()
     }
 
-    class Failure<out E : Exception>(val error: E) : RemoteData<Nothing, E>() {
+    class Failure<out E : Exception>(val error: E) : RemoteData<Nothing, E>(), Complete {
 
         override fun component2(): E = error
 
@@ -68,6 +68,10 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
         override fun hashCode(): Int = javaClass.hashCode() * 31 + error.hashCode()
     }
+
+    interface Complete
+
+    interface Incomplete
 
     val isNotAsked
         get() = this is NotAsked

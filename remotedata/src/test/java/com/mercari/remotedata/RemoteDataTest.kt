@@ -6,7 +6,6 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
-import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -32,6 +31,10 @@ class RemoteDataTest : Spek({
             val anotherSuccess = RemoteData.Success(43)
             remoteData.hashCode() shouldNotEqual anotherSuccess.hashCode()
             remoteData shouldNotEqual anotherSuccess
+        }
+
+        it("completeness") {
+            remoteData shouldBeInstanceOf RemoteData.Complete::class
         }
 
         it("reports Success") {
@@ -128,6 +131,10 @@ class RemoteDataTest : Spek({
             remoteData shouldNotEqual anotherFailure
         }
 
+        it("completeness") {
+            remoteData shouldBeInstanceOf RemoteData.Complete::class
+        }
+
         it("reports failure") {
             remoteData.run {
                 isSuccess shouldEqual false
@@ -195,10 +202,14 @@ class RemoteDataTest : Spek({
             remoteData.get().shouldBeNull()
         }
 
-        it("equal to another") {
+        it("equality") {
             val anotherNotAsked = RemoteData.NotAsked
             remoteData.hashCode() shouldEqual anotherNotAsked.hashCode()
             remoteData shouldEqual anotherNotAsked
+        }
+
+        it("completeness") {
+            remoteData shouldBeInstanceOf RemoteData.Incomplete::class
         }
 
         it("reports notAsked") {
@@ -259,7 +270,7 @@ class RemoteDataTest : Spek({
             rmString.get().shouldBeNull()
         }
 
-        it("tests equality") {
+        it("equality") {
             val sameLoading = RemoteData.Loading<Int>()
             rmInt.hashCode() shouldEqual sameLoading.hashCode()
             rmInt shouldEqual sameLoading
@@ -282,6 +293,11 @@ class RemoteDataTest : Spek({
 
             indeterminateRmBytes.hashCode() shouldEqual otherIndeterminateRmBytes.hashCode()
             indeterminateRmBytes shouldEqual otherIndeterminateRmBytes
+        }
+
+        it("completeness") {
+            rmInt shouldBeInstanceOf RemoteData.Incomplete::class
+            determinateRmBytesWithTotal shouldBeInstanceOf RemoteData.Incomplete::class
         }
 
         it("has no value at creation but the type is carried along properly") {
