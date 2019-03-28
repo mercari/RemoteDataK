@@ -187,7 +187,7 @@ class RemoteDataTest : Spek({
         }
     }
 
-    describe("notAsked remote data") {
+    describe("initial remote data") {
         val remoteData = RemoteData.Initial
 
         it("gets null") {
@@ -200,7 +200,7 @@ class RemoteDataTest : Spek({
             remoteData shouldEqual anotherNotAsked
         }
 
-        it("reports notAsked") {
+        it("reports initial") {
             remoteData.run {
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
