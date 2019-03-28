@@ -1,5 +1,3 @@
-import com.jfrog.bintray.gradle.BintrayExtension
-
 plugins {
     kotlin("jvm")
 
@@ -28,7 +26,7 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "0.8.1"
+    toolVersion = "0.8.3"
 
     val junitPlatformTest: JavaExec by tasks
     applyTo(junitPlatformTest)
