@@ -6,7 +6,6 @@ import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
 import org.amshove.kluent.shouldEqual
 import org.amshove.kluent.shouldNotEqual
-import org.amshove.kluent.shouldNotThrow
 import org.amshove.kluent.shouldThrow
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -39,7 +38,7 @@ class RemoteDataTest : Spek({
                 isSuccess shouldEqual true
                 isFailure shouldEqual false
                 isLoading shouldEqual false
-                isNotAsked shouldEqual false
+                isInitial shouldEqual false
             }
         }
 
@@ -133,7 +132,7 @@ class RemoteDataTest : Spek({
                 isSuccess shouldEqual false
                 isFailure shouldEqual true
                 isLoading shouldEqual false
-                isNotAsked shouldEqual false
+                isInitial shouldEqual false
             }
         }
 
@@ -189,14 +188,14 @@ class RemoteDataTest : Spek({
     }
 
     describe("notAsked remote data") {
-        val remoteData = RemoteData.NotAsked
+        val remoteData = RemoteData.Initial
 
         it("gets null") {
             remoteData.get().shouldBeNull()
         }
 
         it("equal to another") {
-            val anotherNotAsked = RemoteData.NotAsked
+            val anotherNotAsked = RemoteData.Initial
             remoteData.hashCode() shouldEqual anotherNotAsked.hashCode()
             remoteData shouldEqual anotherNotAsked
         }
@@ -206,7 +205,7 @@ class RemoteDataTest : Spek({
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
                 isLoading shouldEqual false
-                isNotAsked shouldEqual true
+                isInitial shouldEqual true
             }
         }
 
@@ -239,7 +238,7 @@ class RemoteDataTest : Spek({
 
             val fanout = remoteData.fanout(anotherRm)
 
-            fanout shouldBe RemoteData.NotAsked
+            fanout shouldBe RemoteData.Initial
             fanout.get().shouldBeNull()
         }
     }
@@ -303,25 +302,25 @@ class RemoteDataTest : Spek({
             rmInt.run {
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
-                isNotAsked shouldEqual false
+                isInitial shouldEqual false
                 isLoading shouldEqual true
             }
             rmString.run {
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
-                isNotAsked shouldEqual false
+                isInitial shouldEqual false
                 isLoading shouldEqual true
             }
             determinateRmBytes.run {
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
-                isNotAsked shouldEqual false
+                isInitial shouldEqual false
                 isLoading shouldEqual true
             }
             indeterminateRmBytes.run {
                 isSuccess shouldEqual false
                 isFailure shouldEqual false
-                isNotAsked shouldEqual false
+                isInitial shouldEqual false
                 isLoading shouldEqual true
             }
         }
