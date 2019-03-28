@@ -34,7 +34,8 @@ class RemoteDataTest : Spek({
         }
 
         it("completeness") {
-            remoteData shouldBeInstanceOf RemoteData.Complete::class
+            remoteData.isComplete shouldEqual true
+            remoteData.isIncomplete shouldEqual false
         }
 
         it("reports Success") {
@@ -132,7 +133,8 @@ class RemoteDataTest : Spek({
         }
 
         it("completeness") {
-            remoteData shouldBeInstanceOf RemoteData.Complete::class
+            remoteData.isComplete shouldEqual true
+            remoteData.isIncomplete shouldEqual false
         }
 
         it("reports failure") {
@@ -209,7 +211,8 @@ class RemoteDataTest : Spek({
         }
 
         it("completeness") {
-            remoteData shouldBeInstanceOf RemoteData.Incomplete::class
+            remoteData.isComplete shouldEqual false
+            remoteData.isIncomplete shouldEqual true
         }
 
         it("reports notAsked") {
@@ -296,8 +299,8 @@ class RemoteDataTest : Spek({
         }
 
         it("completeness") {
-            rmInt shouldBeInstanceOf RemoteData.Incomplete::class
-            determinateRmBytesWithTotal shouldBeInstanceOf RemoteData.Incomplete::class
+            rmInt.isComplete shouldEqual false
+            rmInt.isIncomplete shouldEqual true
         }
 
         it("has no value at creation but the type is carried along properly") {
