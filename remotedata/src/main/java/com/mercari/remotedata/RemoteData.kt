@@ -84,6 +84,12 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     val isFailure
         get() = this is Failure
+
+    val isComplete
+        get() = this is Complete
+
+    val isIncomplete
+        get() = this is Incomplete
 }
 
 fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.map(
