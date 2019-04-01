@@ -13,7 +13,7 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     open fun get(): V? = null
 
-    object NotAsked : RemoteData<Nothing, Nothing>(), Incomplete
+    object Initial : RemoteData<Nothing, Nothing>(), Incomplete
 
     class Loading<V : Any> @JvmOverloads constructor(
             progress: Int? = null,
@@ -73,8 +73,8 @@ sealed class RemoteData<out V : Any, out E : Exception> {
 
     interface Incomplete
 
-    val isNotAsked
-        get() = this is NotAsked
+    val isInitial
+        get() = this is Initial
 
     val isLoading
         get() = this is Loading
@@ -106,7 +106,7 @@ internal inline fun <V : Any, E : Exception, U : Any, EE : Exception> RemoteData
         transformError: (E) -> EE
 ): RemoteData<U, EE> =
         when (this) {
-            RemoteData.NotAsked -> RemoteData.NotAsked
+            RemoteData.Initial -> RemoteData.Initial
             is RemoteData.Loading -> RemoteData.Loading(progress)
             is RemoteData.Success -> RemoteData.Success(transform(value))
             is RemoteData.Failure -> RemoteData.Failure(transformError(error))
@@ -116,7 +116,7 @@ fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.flatMap(
         transform: (V) -> RemoteData<U, E>
 ): RemoteData<U, E> =
         when (this) {
-            RemoteData.NotAsked -> RemoteData.NotAsked
+            RemoteData.Initial -> RemoteData.Initial
             is RemoteData.Loading -> RemoteData.Loading(progress)
             is RemoteData.Success -> transform(value)
             is RemoteData.Failure -> this
@@ -126,7 +126,7 @@ fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.flatMapError(
         transform: (E) -> RemoteData<V, EE>
 ): RemoteData<V, EE> =
         when (this) {
-            RemoteData.NotAsked -> RemoteData.NotAsked
+            RemoteData.Initial -> RemoteData.Initial
             is RemoteData.Loading -> this
             is RemoteData.Success -> this
             is RemoteData.Failure -> transform(error)
