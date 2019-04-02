@@ -1,4 +1,4 @@
-# RemoteData for Kotlin and Java
+# RemoteData for Kotlin
 
 [![jcenter](https://api.bintray.com/packages/mercari-inc/maven/remotedatak/images/download.svg)](https://bintray.com/mercari-inc/maven/remotedatak/_latestVersion) 
 [![Build Status](https://circleci.com/gh/mercari/RemoteData.svg?style=svg)](https://circleci.com/gh/mercari/RemoteData)
