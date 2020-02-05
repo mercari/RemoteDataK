@@ -25,9 +25,6 @@ dependencies {
 
 jacoco {
     toolVersion = Version.jacoco
-
-    val junitPlatformTest: JavaExec by tasks
-    applyTo(junitPlatformTest)
 }
 
 task<JacocoReport>("codeCoverageReport") {
@@ -45,12 +42,12 @@ task<JacocoReport>("codeCoverageReport") {
 
     val mainSrc = "${project.projectDir}/src/main/java"
 
-    sourceDirectories = files(mainSrc)
-    classDirectories = files(tree)
+    sourceDirectories.setFrom(files(mainSrc))
+    classDirectories.setFrom(files(tree))
 
-    executionData = fileTree(project.buildDir) {
+    executionData.setFrom(fileTree(project.buildDir) {
         include("jacoco/*.exec")
-    }
+    })
 
     dependsOn(junitPlatformTest)
 }
@@ -66,7 +63,7 @@ val sourceSets = project.the<SourceSetContainer>()
 
 val sourcesJar by tasks.creating(Jar::class) {
     from(sourceSets["main"].allSource)
-    classifier = "sources"
+    archiveClassifier.set("sources")
 }
 
 val doc by tasks.creating(Javadoc::class) {
@@ -77,7 +74,7 @@ val javadocJar by tasks.creating(Jar::class) {
     dependsOn(doc)
     from(doc)
 
-    classifier = "javadoc"
+    archiveClassifier.set("javadoc")
 }
 
 publishing {

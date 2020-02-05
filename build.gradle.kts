@@ -19,7 +19,3 @@ allprojects {
         maven { setUrl(MavenUrl.spekDev) }
     }
 }
-
-tasks.create<Wrapper>("wrapper") {
-   gradleVersion = "4.10.2"
-}
