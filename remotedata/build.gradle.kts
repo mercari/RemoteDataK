@@ -13,16 +13,14 @@ repositories {
 }
 
 dependencies {
-    val kotlinVersion = extra.get("kotlinVersion") as String
-    implementation(kotlin("stdlib", kotlinVersion))
+    implementation(kotlin(Dependencies.kotlin, Version.kotlin))
 
     // assertion
-    testImplementation("org.amshove.kluent:kluent-android:${extra.get("kluentVersion") as String}")
+    testImplementation(TestDependencies.kluent)
 
     //spek2
-    val spekVersion = extra.get("spekVersion") as String
-    testImplementation("org.spekframework.spek2:spek-dsl-jvm:$spekVersion")
-    testRuntimeOnly("org.spekframework.spek2:spek-runner-junit5:$spekVersion")
+    testImplementation(TestDependencies.spek)
+    testRuntimeOnly(TestDependencies.spekRunner)
 }
 
 jacoco {
@@ -57,8 +55,8 @@ task<JacocoReport>("codeCoverageReport") {
     dependsOn(junitPlatformTest)
 }
 
-val artifactGroupId = extra.get("artifactGroupId") as String
-val artifactPublishVersion = extra.get("artifactPublishVersion") as String
+val artifactGroupId = Artifact.groupdId
+val artifactPublishVersion = Artifact.version
 
 group = artifactGroupId
 version = artifactPublishVersion
