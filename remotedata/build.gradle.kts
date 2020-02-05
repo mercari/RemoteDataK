@@ -24,7 +24,7 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "0.8.3"
+    toolVersion = Version.jacoco
 
     val junitPlatformTest: JavaExec by tasks
     applyTo(junitPlatformTest)
