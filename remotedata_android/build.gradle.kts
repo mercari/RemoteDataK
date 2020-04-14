@@ -23,6 +23,10 @@ dependencies {
     testImplementation(TestDependencies.junitJupiter)
     testRuntimeOnly(TestDependencies.junitEngine)
 
+    // Robolectric
+    testImplementation(TestDependencies.junit4)
+    testImplementation(TestDependencies.roboletric)
+
     //spek2
     testImplementation(TestDependencies.spek)
     testRuntimeOnly(TestDependencies.spekRunner)

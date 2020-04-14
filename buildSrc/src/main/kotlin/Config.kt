@@ -18,6 +18,7 @@ object Version {
   const val spek = "2.0.10"
   const val junitPlatform = "1.2.0"
   const val junitEngine = "5.6.0"
+  const val junit4 = "4.13"
   const val jacoco = "0.8.3"
 }
 
@@ -39,6 +40,8 @@ object TestDependencies {
   const val junitEngine = "org.junit.jupiter:junit-jupiter-engine:${Version.junitEngine}"
   const val spek = "org.spekframework.spek2:spek-dsl-jvm:${Version.spek}"
   const val spekRunner = "org.spekframework.spek2:spek-runner-junit5:${Version.spek}"
+  const val junit4 = "junit:junit:${Version.junit4}"
+  const val roboletric = "org.robolectric:robolectric:4.3.1"
 }
 
 object AndroidConfig {
