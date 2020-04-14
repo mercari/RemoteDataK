@@ -11,9 +11,9 @@ object MavenUrl {
 
 object Version {
   const val bintray = "1.8.4"
-  const val kotlin = "1.3.70"
-  const val kluent = "1.49"
-  const val spek = "2.0.1"
+  const val kotlin = "1.3.71"
+  const val kluent = "1.60"
+  const val spek = "2.0.10"
   const val junitPlatform = "1.2.0"
   const val jacoco = "0.8.3"
 }

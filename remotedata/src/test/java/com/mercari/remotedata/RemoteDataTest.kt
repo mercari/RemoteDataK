@@ -4,8 +4,8 @@ import org.amshove.kluent.should
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeInstanceOf
 import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldEqual
-import org.amshove.kluent.shouldNotEqual
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldNotBeEqualTo
 import org.amshove.kluent.shouldThrow
 import org.spekframework.spek2.Spek
 import org.spekframework.spek2.style.specification.describe
@@ -18,57 +18,57 @@ class RemoteDataTest : Spek({
 
         it("extracts value data correctly") {
             remoteData.run {
-                value shouldEqual 42
-                get() shouldEqual 42
+                value shouldBeEqualTo 42
+                get() shouldBeEqualTo 42
             }
         }
 
         it("equality") {
             val sameSuccess = RemoteData.Success(42)
-            remoteData.hashCode() shouldEqual sameSuccess.hashCode()
-            remoteData shouldEqual sameSuccess
+            remoteData.hashCode() shouldBeEqualTo sameSuccess.hashCode()
+            remoteData shouldBeEqualTo sameSuccess
 
             val anotherSuccess = RemoteData.Success(43)
-            remoteData.hashCode() shouldNotEqual anotherSuccess.hashCode()
-            remoteData shouldNotEqual anotherSuccess
+            remoteData.hashCode() shouldNotBeEqualTo anotherSuccess.hashCode()
+            remoteData shouldNotBeEqualTo anotherSuccess
         }
 
         it("completeness") {
-            remoteData.isComplete shouldEqual true
-            remoteData.isIncomplete shouldEqual false
+            remoteData.isComplete shouldBeEqualTo true
+            remoteData.isIncomplete shouldBeEqualTo false
         }
 
         it("reports Success") {
             remoteData.run {
-                isSuccess shouldEqual true
-                isFailure shouldEqual false
-                isLoading shouldEqual false
-                isInitial shouldEqual false
+                isSuccess shouldBeEqualTo true
+                isFailure shouldBeEqualTo false
+                isLoading shouldBeEqualTo false
+                isInitial shouldBeEqualTo false
             }
         }
 
         it("destructures data correctly") {
             val (value, error) = remoteData
-            value shouldEqual 42
+            value shouldBeEqualTo 42
             error.shouldBeNull()
         }
 
         it("maps to new type correctly") {
             val mappedRm = remoteData.map { it > 0 }
             val value = mappedRm.get()
-            value shouldEqual true
+            value shouldBeEqualTo true
         }
 
         it("maps both to new types correctly") {
             val (value, error) = remoteData.mapBoth({ it + it }, { NullPointerException() })
 
-            value shouldEqual 84
+            value shouldBeEqualTo 84
             error.shouldBeNull()
         }
 
         it("flatMaps to new type correctly") {
             val (value, error) = remoteData.flatMap { RemoteData.Success(it * it) }
-            value shouldEqual 42 * 42
+            value shouldBeEqualTo 42 * 42
             error.shouldBeNull()
         }
 
@@ -76,13 +76,13 @@ class RemoteDataTest : Spek({
             val anotherRm = RemoteData.Failure(NullPointerException())
             val (value, error) = (remoteData as RemoteData<Int, Exception>).flatMapError { anotherRm }
 
-            value shouldEqual 42
+            value shouldBeEqualTo 42
             error.shouldBeNull()
         }
 
         it("getOrElse returns value correctly") {
             val value = remoteData.getOrElse(40)
-            value shouldEqual 42
+            value shouldBeEqualTo 42
         }
 
         it("fanout returns a pair of values") {
@@ -90,8 +90,8 @@ class RemoteDataTest : Spek({
 
             val (value, error) = remoteData.fanout(anotherRm)
 
-            value!!.first shouldEqual 42
-            value.second shouldEqual 28
+            value!!.first shouldBeEqualTo 42
+            value.second shouldBeEqualTo 28
             error.shouldBeNull()
         }
 
@@ -102,8 +102,8 @@ class RemoteDataTest : Spek({
 
             val fanout = remoteData.fanout(anotherRm) { one, two -> Foo(one, two.toString()) }
 
-            fanout.get()!!.value1 shouldEqual 42
-            fanout.get()!!.value2 shouldEqual "28"
+            fanout.get()!!.value1 shouldBeEqualTo 42
+            fanout.get()!!.value2 shouldBeEqualTo "28"
         }
     }
 
@@ -120,36 +120,36 @@ class RemoteDataTest : Spek({
 
         it("equality") {
             val sameFailure = RemoteData.Failure(data) // Exception has to be the same reference!!
-            remoteData.hashCode() shouldEqual sameFailure.hashCode()
-            remoteData shouldEqual sameFailure
+            remoteData.hashCode() shouldBeEqualTo sameFailure.hashCode()
+            remoteData shouldBeEqualTo sameFailure
 
             val sameFailureDifferentException = RemoteData.Failure(IllegalStateException("Not Available"))
-            remoteData.hashCode() shouldNotEqual sameFailureDifferentException.hashCode()
-            remoteData shouldNotEqual sameFailureDifferentException
+            remoteData.hashCode() shouldNotBeEqualTo sameFailureDifferentException.hashCode()
+            remoteData shouldNotBeEqualTo sameFailureDifferentException
 
             val anotherFailure = RemoteData.Failure(NullPointerException())
-            remoteData.hashCode() shouldNotEqual anotherFailure.hashCode()
-            remoteData shouldNotEqual anotherFailure
+            remoteData.hashCode() shouldNotBeEqualTo anotherFailure.hashCode()
+            remoteData shouldNotBeEqualTo anotherFailure
         }
 
         it("completeness") {
-            remoteData.isComplete shouldEqual true
-            remoteData.isIncomplete shouldEqual false
+            remoteData.isComplete shouldBeEqualTo true
+            remoteData.isIncomplete shouldBeEqualTo false
         }
 
         it("reports failure") {
             remoteData.run {
-                isSuccess shouldEqual false
-                isFailure shouldEqual true
-                isLoading shouldEqual false
-                isInitial shouldEqual false
+                isSuccess shouldBeEqualTo false
+                isFailure shouldBeEqualTo true
+                isLoading shouldBeEqualTo false
+                isInitial shouldBeEqualTo false
             }
         }
 
         it("destructures error correctly") {
             val (value, error) = remoteData
             value.shouldBeNull()
-            error.message shouldEqual "Not Available"
+            error.message shouldBeEqualTo "Not Available"
         }
 
         it("will mapError to new type correctly") {
@@ -183,7 +183,7 @@ class RemoteDataTest : Spek({
 
         it("getOrElse return default value supplied correctly") {
             val value = remoteData.getOrElse(40)
-            value shouldEqual 40
+            value shouldBeEqualTo 40
         }
 
         it("fanout does not return a pair of values") {
@@ -193,7 +193,7 @@ class RemoteDataTest : Spek({
 
             value.shouldBeNull()
             error!!.shouldBeInstanceOf<IllegalStateException>()
-            error.message shouldEqual "Not Available"
+            error.message shouldBeEqualTo "Not Available"
         }
     }
 
@@ -206,21 +206,21 @@ class RemoteDataTest : Spek({
 
         it("equality") {
             val anotherNotAsked = RemoteData.Initial
-            remoteData.hashCode() shouldEqual anotherNotAsked.hashCode()
-            remoteData shouldEqual anotherNotAsked
+            remoteData.hashCode() shouldBeEqualTo anotherNotAsked.hashCode()
+            remoteData shouldBeEqualTo anotherNotAsked
         }
 
         it("completeness") {
-            remoteData.isComplete shouldEqual false
-            remoteData.isIncomplete shouldEqual true
+            remoteData.isComplete shouldBeEqualTo false
+            remoteData.isIncomplete shouldBeEqualTo true
         }
 
         it("reports initial") {
             remoteData.run {
-                isSuccess shouldEqual false
-                isFailure shouldEqual false
-                isLoading shouldEqual false
-                isInitial shouldEqual true
+                isSuccess shouldBeEqualTo false
+                isFailure shouldBeEqualTo false
+                isLoading shouldBeEqualTo false
+                isInitial shouldBeEqualTo true
             }
         }
 
@@ -275,32 +275,32 @@ class RemoteDataTest : Spek({
 
         it("equality") {
             val sameLoading = RemoteData.Loading<Int>()
-            rmInt.hashCode() shouldEqual sameLoading.hashCode()
-            rmInt shouldEqual sameLoading
+            rmInt.hashCode() shouldBeEqualTo sameLoading.hashCode()
+            rmInt shouldBeEqualTo sameLoading
 
             val sameRmBytesDeterminate = RemoteData.Loading<ByteArray>(0)
             val otherDeterminateRmBytes = RemoteData.Loading<ByteArray>(10)
             val otherIndeterminateRmBytes = RemoteData.Loading<ByteArray>()
 
-            determinateRmBytes.hashCode() shouldNotEqual indeterminateRmBytes.hashCode()
-            determinateRmBytes shouldNotEqual indeterminateRmBytes
+            determinateRmBytes.hashCode() shouldNotBeEqualTo indeterminateRmBytes.hashCode()
+            determinateRmBytes shouldNotBeEqualTo indeterminateRmBytes
 
-            determinateRmBytes.hashCode() shouldEqual sameRmBytesDeterminate.hashCode()
-            determinateRmBytes shouldEqual sameRmBytesDeterminate
+            determinateRmBytes.hashCode() shouldBeEqualTo sameRmBytesDeterminate.hashCode()
+            determinateRmBytes shouldBeEqualTo sameRmBytesDeterminate
 
-            determinateRmBytes.hashCode() shouldNotEqual otherDeterminateRmBytes.hashCode()
-            determinateRmBytes shouldNotEqual otherDeterminateRmBytes
+            determinateRmBytes.hashCode() shouldNotBeEqualTo otherDeterminateRmBytes.hashCode()
+            determinateRmBytes shouldNotBeEqualTo otherDeterminateRmBytes
 
-            determinateRmBytes.hashCode() shouldNotEqual determinateRmBytesWithTotal
-            determinateRmBytes shouldNotEqual determinateRmBytesWithTotal
+            determinateRmBytes.hashCode() shouldNotBeEqualTo determinateRmBytesWithTotal
+            determinateRmBytes shouldNotBeEqualTo determinateRmBytesWithTotal
 
-            indeterminateRmBytes.hashCode() shouldEqual otherIndeterminateRmBytes.hashCode()
-            indeterminateRmBytes shouldEqual otherIndeterminateRmBytes
+            indeterminateRmBytes.hashCode() shouldBeEqualTo otherIndeterminateRmBytes.hashCode()
+            indeterminateRmBytes shouldBeEqualTo otherIndeterminateRmBytes
         }
 
         it("completeness") {
-            rmInt.isComplete shouldEqual false
-            rmInt.isIncomplete shouldEqual true
+            rmInt.isComplete shouldBeEqualTo false
+            rmInt.isIncomplete shouldBeEqualTo true
         }
 
         it("has no value at creation but the type is carried along properly") {
@@ -320,68 +320,68 @@ class RemoteDataTest : Spek({
 
         it("reports loading") {
             rmInt.run {
-                isSuccess shouldEqual false
-                isFailure shouldEqual false
-                isInitial shouldEqual false
-                isLoading shouldEqual true
+                isSuccess shouldBeEqualTo false
+                isFailure shouldBeEqualTo false
+                isInitial shouldBeEqualTo false
+                isLoading shouldBeEqualTo true
             }
             rmString.run {
-                isSuccess shouldEqual false
-                isFailure shouldEqual false
-                isInitial shouldEqual false
-                isLoading shouldEqual true
+                isSuccess shouldBeEqualTo false
+                isFailure shouldBeEqualTo false
+                isInitial shouldBeEqualTo false
+                isLoading shouldBeEqualTo true
             }
             determinateRmBytes.run {
-                isSuccess shouldEqual false
-                isFailure shouldEqual false
-                isInitial shouldEqual false
-                isLoading shouldEqual true
+                isSuccess shouldBeEqualTo false
+                isFailure shouldBeEqualTo false
+                isInitial shouldBeEqualTo false
+                isLoading shouldBeEqualTo true
             }
             indeterminateRmBytes.run {
-                isSuccess shouldEqual false
-                isFailure shouldEqual false
-                isInitial shouldEqual false
-                isLoading shouldEqual true
+                isSuccess shouldBeEqualTo false
+                isFailure shouldBeEqualTo false
+                isInitial shouldBeEqualTo false
+                isLoading shouldBeEqualTo true
             }
         }
 
         it("reports proper progress type") {
-            determinateRmBytes.isIndeterminateProgress shouldEqual false
-            indeterminateRmBytes.isIndeterminateProgress shouldEqual true
+            determinateRmBytes.isIndeterminateProgress shouldBeEqualTo false
+            indeterminateRmBytes.isIndeterminateProgress shouldBeEqualTo true
         }
 
         it("coerces progress properly") {
 
-            RemoteData.Loading<ByteArray>(-1).progress shouldEqual 0
-            RemoteData.Loading<ByteArray>(101).progress shouldEqual 100
-            RemoteData.Loading<ByteArray>(1).progress shouldEqual 1
-            RemoteData.Loading<ByteArray>(99).progress shouldEqual 99
+            RemoteData.Loading<ByteArray>(-1).progress shouldBeEqualTo 0
+            RemoteData.Loading<ByteArray>(101).progress shouldBeEqualTo 100
+            RemoteData.Loading<ByteArray>(1).progress shouldBeEqualTo 1
+            RemoteData.Loading<ByteArray>(99).progress shouldBeEqualTo 99
 
             indeterminateRmBytes.progress.shouldBeNull()
 
             determinateRmBytes.run {
                 progress = -1
-                progress shouldEqual 0
+                progress shouldBeEqualTo 0
 
                 progress = 101
-                progress shouldEqual 100
+                progress shouldBeEqualTo 100
 
                 progress = 1
-                progress shouldEqual 1
+                progress shouldBeEqualTo 1
 
                 progress = 99
-                progress shouldEqual 99
+                progress shouldBeEqualTo 99
             }
 
             determinateRmBytesWithTotal.run {
                 progress = -1
-                progress shouldEqual 0
+                progress shouldBeEqualTo 0
 
                 progress = totalUnits + 1
-                progress shouldEqual totalUnits
+                progress shouldBeEqualTo totalUnits
 
                 progress = totalUnits - 1
-                progress shouldEqual totalUnits - 1
+                progress shouldBeEqualTo totalUnits - 1
             }
         }
 
