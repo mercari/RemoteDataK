@@ -6,7 +6,9 @@ import android.os.Parcelable.Creator
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
 
-sealed class RemoteData<out V : Any, out E : Exception> : Parcelable {
+interface ErrorKind : Parcelable
+
+sealed class RemoteData<out V : Any, out E : ErrorKind> : Parcelable {
 
     /**
      * This allows extension functions over the companion object for each RemoteData
@@ -91,11 +93,11 @@ sealed class RemoteData<out V : Any, out E : Exception> : Parcelable {
     }
 
     @Parcelize
-    class Failure<out E : Exception>(val error: E) : RemoteData<Nothing, E>(), Complete {
+    class Failure<out E : ErrorKind>(val error: E) : RemoteData<Nothing, E>(), Complete {
 
         override fun component2(): E = error
 
-        override fun get() = throw error
+        override fun get() = throw UnsupportedOperationException("no value to obtain")
 
         override fun equals(other: Any?): Boolean =
                 if (other === this) true
@@ -129,22 +131,22 @@ sealed class RemoteData<out V : Any, out E : Exception> : Parcelable {
         get() = this is Incomplete
 }
 
-fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.map(
+fun <V : Any, E : ErrorKind, U : Any> RemoteData<V, E>.map(
         transform: (V) -> U
 ): RemoteData<U, E> =
         mapBoth(transform, { it })
 
-fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.mapError(
+fun <V : Any, E : ErrorKind, EE : ErrorKind> RemoteData<V, E>.mapError(
         transform: (E) -> EE
 ): RemoteData<V, EE> =
         mapBoth({ it }, transform)
 
-fun <V : Any, E : Exception> RemoteData<V, E>.getOrElse(defaultValue: V) = when (this) {
+fun <V : Any, E : ErrorKind> RemoteData<V, E>.getOrElse(defaultValue: V) = when (this) {
     is RemoteData.Success -> value
     else -> defaultValue
 }
 
-internal inline fun <V : Any, E : Exception, U : Any, EE : Exception> RemoteData<V, E>.mapBoth(
+internal inline fun <V : Any, E : ErrorKind, U : Any, EE : ErrorKind> RemoteData<V, E>.mapBoth(
         transform: (V) -> U,
         transformError: (E) -> EE
 ): RemoteData<U, EE> =
@@ -155,7 +157,7 @@ internal inline fun <V : Any, E : Exception, U : Any, EE : Exception> RemoteData
             is RemoteData.Failure -> RemoteData.Failure(transformError(error))
         }
 
-fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.flatMap(
+fun <V : Any, E : ErrorKind, U : Any> RemoteData<V, E>.flatMap(
         transform: (V) -> RemoteData<U, E>
 ): RemoteData<U, E> =
         when (this) {
@@ -165,7 +167,7 @@ fun <V : Any, E : Exception, U : Any> RemoteData<V, E>.flatMap(
             is RemoteData.Failure -> this
         }
 
-fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.flatMapError(
+fun <V : Any, E : ErrorKind, EE : ErrorKind> RemoteData<V, E>.flatMapError(
         transform: (E) -> RemoteData<V, EE>
 ): RemoteData<V, EE> =
         when (this) {
@@ -175,8 +177,8 @@ fun <V : Any, E : Exception, EE : Exception> RemoteData<V, E>.flatMapError(
             is RemoteData.Failure -> transform(error)
         }
 
-fun <U : Any, V : Any, E : Exception> RemoteData<U, E>.fanout(anotherRemoteData: RemoteData<V, E>): RemoteData<Pair<U, V>, E> =
+fun <U : Any, V : Any, E : ErrorKind> RemoteData<U, E>.fanout(anotherRemoteData: RemoteData<V, E>): RemoteData<Pair<U, V>, E> =
         fanout(anotherRemoteData, ::Pair)
 
-fun <U : Any, V : Any, T : Any, E : Exception> RemoteData<U, E>.fanout(anotherRemoteData: RemoteData<V, E>, transform: (U, V) -> T) =
+fun <U : Any, V : Any, T : Any, E : ErrorKind> RemoteData<U, E>.fanout(anotherRemoteData: RemoteData<V, E>, transform: (U, V) -> T): RemoteData<T, E> =
         flatMap { outer -> anotherRemoteData.map { inner -> transform(outer, inner) } }
