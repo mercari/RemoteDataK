@@ -4,6 +4,7 @@ import android.os.Parcel
 import android.os.Parcelable
 import kotlinx.android.parcel.Parcelize
 import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -113,7 +114,7 @@ class ParcelableRemoteDataTest {
         val restored: RemoteData.Failure<ErrorKind> = unmarshall(marshalled)
 
         // Then: Restored value should be the same as the initial value
-        restored shouldBeEqualTo value
+        restored.error.shouldBeInstanceOf<NetworkError>()
     }
 
     @Test(expected = RuntimeException::class)
