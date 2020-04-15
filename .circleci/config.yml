@@ -8,6 +8,14 @@ jdk_env: &jdk_env
     JVM_OPTS: -Xmx3200m
     TERM: dumb
 
+android_env: &android_env
+  working_directory: ~/repo
+  docker:
+    - image: circleci/android:api-29
+  environment:
+    JVM_OPTS: -Xmx3200m
+    TERM: dumb
+
 references:
   restore_gradle: &restore_gradle
     restore_cache:
@@ -33,7 +41,22 @@ jobs:
 
       - *save_gradle
 
-      - run: ./gradlew codeCoverageReport
+      - run: ./gradlew :remotedata:codeCoverageReport
+
+      - run: bash <(curl -s https://codecov.io/bash)
+
+  build-android:
+    <<: *android_env
+    steps:
+      - checkout
+
+      - *restore_gradle
+
+      - run: ./gradlew dependencies
+
+      - *save_gradle
+
+      - run: ./gradlew :remotedata_android:jacocoTestReport
 
       - run: bash <(curl -s https://codecov.io/bash)
 
@@ -48,7 +71,20 @@ jobs:
 
       - *save_gradle
 
-      - run: ./gradlew clean build bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY -PdryRun=false -Ppublish=true
+      - run: ./gradlew clean :remotedata:build :remotedata:bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY -PdryRun=false -Ppublish=true
+
+  deploy-android:
+    <<: *jdk_env
+    steps:
+      - checkout
+
+      - *restore_gradle
+
+      - run: ./gradlew dependencies
+
+      - *save_gradle
+
+      - run: ./gradlew clean :remotedata_android:build # TODO add publish artifact task for remotedata_android
 
 workflows:
   version: 2
@@ -56,9 +92,16 @@ workflows:
   build-and-deploy:
     jobs:
       - build
+      - build-android
       - deploy:
           requires:
             - build
+          filters:
+            branches:
+              only: master
+      - deploy-android:
+          requires:
+            - build-android
           filters:
             branches:
               only: master
@@ -66,6 +109,13 @@ workflows:
   build:
     jobs:
       - build:
+          filters:
+            branches:
+              ignore: master
+
+  build-android:
+    jobs:
+      - build-android:
           filters:
             branches:
               ignore: master
