@@ -7,6 +7,7 @@ plugins {
 
     jacoco
     id("de.mannodermaus.android-junit5")
+    id("maven-publish")
 }
 
 repositories {
@@ -50,4 +51,22 @@ android {
 
 jacoco {
     toolVersion = Version.jacoco
+}
+
+val artifactGroupId = Artifact.groupdId
+val artifactPublishVersion = Artifact.version
+
+afterEvaluate {
+    publishing {
+        publications {
+            register(project.name, MavenPublication::class) {
+
+                from(components["release"])
+
+                groupId = artifactGroupId
+                artifactId = project.name
+                version = artifactPublishVersion
+            }
+        }
+    }
 }
