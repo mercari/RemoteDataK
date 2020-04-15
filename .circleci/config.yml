@@ -84,7 +84,7 @@ jobs:
 
       - *save_gradle
 
-      - run: ./gradlew clean :remotedata_android:build # TODO add publish artifact task for remotedata_android
+      - run: ./gradlew clean :remotedata_android:build :remotedata_android:bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY -PdryRun=false -Ppublish=true
 
 workflows:
   version: 2

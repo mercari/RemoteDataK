@@ -8,6 +8,7 @@ plugins {
     jacoco
     id("de.mannodermaus.android-junit5")
     id("maven-publish")
+    id("com.jfrog.bintray")
 }
 
 repositories {
@@ -67,6 +68,26 @@ afterEvaluate {
                 artifactId = project.name
                 version = artifactPublishVersion
             }
+        }
+    }
+}
+
+bintray {
+    user = findProperty("BINTRAY_USER") as? String
+    key = findProperty("BINTRAY_KEY") as? String
+    override = false
+    publish = true
+    setPublications(project.name)
+    pkg.apply {
+        repo = "maven"
+        name = "remotedatak"
+        desc = "Algebraic data type (ADT) to represent the state of data that is loading from/to remote sources/destinations"
+        userOrg = "mercari-inc"
+        websiteUrl = "https://github.com/mercari/RemoteDataK"
+        vcsUrl = "https://github.com/mercari/RemoteDataK"
+        setLicenses("MIT")
+        version.apply {
+            name = artifactPublishVersion
         }
     }
 }
