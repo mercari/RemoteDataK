@@ -1,1 +1,1 @@
-include(":remotedata")
+include(":remotedata", ":remotedata_android")
