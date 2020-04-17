@@ -20,6 +20,13 @@ object Version {
   const val junitEngine = "5.6.0"
   const val junit4 = "4.13"
   const val jacoco = "0.8.3"
+
+  const val rxjava = "3.0.2"
+  const val rxandroid = "3.0.0"
+  const val androidLifecycle = "2.2.0"
+  const val androidAppCompat = "1.1.0"
+  const val androidFragment = "1.2.4"
+  const val androidConstraintLayout = "1.1.3"
 }
 
 object Classpath {
@@ -32,6 +39,16 @@ object Classpath {
 
 object Dependencies {
   const val kotlin = "stdlib"
+
+  const val rxjava = "io.reactivex.rxjava3:rxjava:${Version.rxjava}"
+  const val rxandroid = "io.reactivex.rxjava3:rxandroid:${Version.rxandroid}"
+  const val androidAppCompat = "androidx.appcompat:appcompat:${Version.androidAppCompat}"
+  const val androidFragment = "androidx.fragment:fragment-ktx:${Version.androidFragment}"
+  const val androidLifecycle = "androidx.lifecycle:lifecycle-viewmodel-ktx:${Version.androidLifecycle}"
+  const val androidLiveData = "androidx.lifecycle:lifecycle-livedata-ktx:${Version.androidLifecycle}"
+  const val androidSavedState = "androidx.lifecycle:lifecycle-viewmodel-savedstate:${Version.androidLifecycle}"
+  const val androidLifecycleCompiler = "androidx.lifecycle:lifecycle-compiler:${Version.androidLifecycle}"
+  const val androidConstraintLayout = "androidx.constraintlayout:constraintlayout:${Version.androidConstraintLayout}"
 }
 
 object TestDependencies {
