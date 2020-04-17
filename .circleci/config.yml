@@ -74,7 +74,7 @@ jobs:
       - run: ./gradlew clean :remotedata:build :remotedata:bintrayUpload -PBINTRAY_USER=$BINTRAY_USER -PBINTRAY_KEY=$BINTRAY_KEY -PdryRun=false -Ppublish=true
 
   deploy-android:
-    <<: *jdk_env
+    <<: *android_env
     steps:
       - checkout
 
