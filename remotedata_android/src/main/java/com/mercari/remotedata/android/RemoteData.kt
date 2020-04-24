@@ -76,8 +76,10 @@ sealed class RemoteData<out V : Any, out E : ErrorKind> : Parcelable {
         }
     }
 
-    @Parcelize
-    class Success<out V : Any>(val value: @RawValue V) : RemoteData<V, Nothing>(), Complete {
+    class Success<out V : Any>(val value: V) : RemoteData<V, Nothing>(), Complete {
+
+        @Suppress("UNCHECKED_CAST")
+        private constructor(parcel: Parcel) : this(parcel.readValue(parcel.javaClass.classLoader) as V)
 
         override fun component1(): V = value
 
@@ -89,7 +91,22 @@ sealed class RemoteData<out V : Any, out E : ErrorKind> : Parcelable {
                     other is Success<*> && other.value == value
                 }
 
+        override fun writeToParcel(dest: Parcel?, flags: Int) {
+            dest?.writeValue(value)
+        }
+
+        override fun describeContents(): Int = 0
+
         override fun hashCode(): Int = javaClass.hashCode() * 31 + value.hashCode()
+
+        companion object {
+            @JvmField
+            val CREATOR: Creator<Success<Any>> = object : Creator<Success<Any>> {
+                override fun createFromParcel(source: Parcel): Success<Any> = Success(source)
+
+                override fun newArray(size: Int): Array<Success<Any>?> = arrayOfNulls(size)
+            }
+        }
     }
 
     @Parcelize
