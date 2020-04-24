@@ -79,7 +79,7 @@ sealed class RemoteData<out V : Any, out E : ErrorKind> : Parcelable {
     class Success<out V : Any>(val value: V) : RemoteData<V, Nothing>(), Complete {
 
         @Suppress("UNCHECKED_CAST")
-        private constructor(parcel: Parcel) : this(parcel.readValue(parcel.javaClass.classLoader) as V)
+        private constructor(parcel: Parcel) : this(parcel.readValue(Thread.currentThread().contextClassLoader) as V)
 
         override fun component1(): V = value
 
