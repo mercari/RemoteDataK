@@ -46,6 +46,10 @@ class MainViewModel(
         )
     }
 
+    fun onSaveState() {
+        savedStateHandle[STATE_MAIN_VIEW] = state.value
+    }
+
     override fun onCleared() {
         disposables.clear()
         super.onCleared()

@@ -54,6 +54,11 @@ class MainFragment : Fragment(R.layout.main_fragment) {
                 })
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        viewModel.onSaveState()
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
