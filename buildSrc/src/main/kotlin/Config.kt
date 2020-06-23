@@ -2,7 +2,7 @@ import org.gradle.kotlin.dsl.extra
 
 object Artifact {
   const val groupdId = "com.mercari.remotedata"
-  const val version = "1.0.1"
+  const val version = "1.0.2"
 }
 
 object MavenUrl {
