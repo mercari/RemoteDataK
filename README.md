@@ -2,7 +2,6 @@
 
 [![jcenter](https://api.bintray.com/packages/mercari-inc/maven/remotedatak/images/download.svg)](https://bintray.com/mercari-inc/maven/remotedatak/_latestVersion) 
 [![Build Status](https://circleci.com/gh/mercari/RemoteDataK.svg?style=svg)](https://circleci.com/gh/mercari/RemoteDataK)
-[![codecov](https://codecov.io/gh/mercari/RemoteDataK/branch/master/graph/badge.svg)](https://codecov.io/gh/mercari/RemoteDataK)
 
 Algebraic data type (ADT) to represent the state of data that is loading from/to remote sources/destinations
 
