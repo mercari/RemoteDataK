@@ -13,7 +13,7 @@ object Version {
   const val android = "3.6.2"
   const val androidJunit5 = "1.6.0.0"
   const val bintray = "1.8.4"
-  const val kotlin = "1.3.30"
+  const val kotlin = "1.3.71"
   const val kluent = "1.60"
   const val spek = "2.0.10"
   const val junitPlatform = "1.2.0"
